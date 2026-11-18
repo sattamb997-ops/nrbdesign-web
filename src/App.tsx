@@ -12,6 +12,7 @@ import { SpaceDetailPage } from './components/SpaceDetailPage';
 import { BudgetCalculator } from './components/BudgetCalculator';
 import { ScrollIntroHero } from './components/ScrollIntroHero';
 import ownerImage from '../Soham.png';
+import coFounderImage from '../Sattam.jpeg';
 import logoImage from '../logo.jpeg';
 import kitchhImage from '../kitchh.jpg';
 import barrImage from '../barr.jpg';
@@ -594,25 +595,72 @@ export default function App() {
         </div>
       </section>
 
-      {/* 6. About Section */}
+      {/* 6. Founders Section */}
       <section className="bg-[#b3957b] text-[#f7f5f2] py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-[1000px] mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-          <div className="flex justify-center md:justify-end">
-             <img 
-               src={ownerImage} 
-               alt="Soham Bhattacharyya - Owner" 
-               className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] object-cover shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-500 rounded-sm"
-             />
+        <div className="max-w-[1060px] mx-auto space-y-16 md:space-y-20">
+          <div className="text-center space-y-3">
+            <p className="text-xs uppercase tracking-[0.26em] text-[#f7f5f2]/80 font-bold">
+              Leadership
+            </p>
+            <h2 className="font-['Playfair_Display',serif] text-3xl md:text-5xl">
+              Meet the Founders
+            </h2>
           </div>
-          <div className="max-w-md text-center md:text-left">
-            <h2 className="font-['Playfair_Display',serif] text-3xl md:text-5xl mb-6">About the Founder</h2>
-            <p className="text-lg font-['Playfair_Display',serif] mb-4">Soham Bhattacharyya</p>
-            <p className="text-xs md:text-sm opacity-90 mb-5 leading-relaxed">
-              With a passion for creating spaces that resonate with the people who inhabit them, Soham Bhattacharyya founded NRB DESIGN to bring thoughtful, curated interior design to Kolkata and beyond.
-            </p>
-            <p className="text-xs md:text-sm opacity-90 mb-8 leading-relaxed">
-              Believing that good design is a balance of aesthetics and functionality, Soham works closely with clients to transform their visions into beautiful, livable realities.
-            </p>
+
+          {/* Founder — Soham Bhattacharyya */}
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+            <div className="flex justify-center md:justify-end">
+              <div className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] overflow-hidden rounded-sm shadow-lg hover:shadow-2xl transition-shadow duration-500 group">
+                <img
+                  src={ownerImage}
+                  alt="Soham Bhattacharyya - Founder, NRB DESIGN"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+            <div className="max-w-md mx-auto md:mx-0 text-center md:text-left">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#f7f5f2]/80 font-bold mb-2">
+                Founder · Design &amp; Execution
+              </p>
+              <h3 className="text-2xl md:text-3xl font-['Playfair_Display',serif] mb-4">
+                Soham Bhattacharyya
+              </h3>
+              <p className="text-xs md:text-sm opacity-90 mb-4 leading-relaxed">
+                With a passion for creating spaces that resonate with the people who inhabit them, Soham Bhattacharyya founded NRB DESIGN to bring thoughtful, curated interior design to Kolkata and beyond.
+              </p>
+              <p className="text-xs md:text-sm opacity-90 leading-relaxed">
+                Believing that good design is a balance of aesthetics and functionality, Soham works closely with clients to transform their visions into beautiful, livable realities.
+              </p>
+            </div>
+          </div>
+
+          <div className="border-t border-white/20" />
+
+          {/* Co-Founder — Sattam Bhattacharyya */}
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+            <div className="order-2 md:order-1 max-w-md mx-auto md:ml-auto md:mr-0 text-center md:text-right">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#f7f5f2]/80 font-bold mb-2">
+                Co-Founder · Strategy &amp; Systems
+              </p>
+              <h3 className="text-2xl md:text-3xl font-['Playfair_Display',serif] mb-4">
+                Sattam Bhattacharyya
+              </h3>
+              <p className="text-xs md:text-sm opacity-90 mb-4 leading-relaxed">
+                A B.Tech graduate in Artificial Intelligence &amp; Machine Learning (AIML), Sattam Bhattacharyya worked with Infosys while shaping the foundational idea behind NRB DESIGN — bringing structured engineering thinking and operational clarity to home interiors.
+              </p>
+              <p className="text-xs md:text-sm opacity-90 leading-relaxed">
+                Bridging analytical precision with modern homeowner needs, Sattam drives NRB DESIGN&apos;s digital planning experience, transparent estimation workflows, and process discipline so every project moves seamlessly from concept to handover.
+              </p>
+            </div>
+            <div className="order-1 md:order-2 flex justify-center md:justify-start">
+              <div className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] overflow-hidden rounded-sm shadow-lg hover:shadow-2xl transition-shadow duration-500 group bg-[#a4866c]">
+                <img
+                  src={coFounderImage}
+                  alt="Sattam Bhattacharyya - Co-Founder, NRB DESIGN"
+                  className="w-full h-full object-cover object-[50%_24%] scale-[1.28] origin-[50%_30%] group-hover:scale-[1.33] transition-transform duration-500"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
