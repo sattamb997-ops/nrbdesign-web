@@ -1,0 +1,6 @@
+{
+  "name": "Serene Spaces Studio",
+  "description": "A minimalist interior design studio landing page based on a reference image.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

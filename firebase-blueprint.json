@@ -1,0 +1,22 @@
+{
+  "project_id": "youthful-abbey-4hnbb",
+  "collections": [
+    {
+      "name": "consultations",
+      "description": "User consultation requests.",
+      "security_rules": {
+        "read": "false",
+        "create": "true",
+        "update": "false",
+        "delete": "false"
+      },
+      "schema": {
+        "name": "string",
+        "email": "string",
+        "phone": "string",
+        "message": "string",
+        "createdAt": "timestamp"
+      }
+    }
+  ]
+}
