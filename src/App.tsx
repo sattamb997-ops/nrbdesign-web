@@ -3,43 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Hexagon, MessageCircle, MapPin, Phone, CheckCircle2, Star, Instagram, BrickWall, Layers, Hammer, Armchair, LampCeiling, Feather, Menu, X } from 'lucide-react';
+import { Hexagon, MessageCircle, MapPin, Phone, CheckCircle2, Star, Instagram, BrickWall, Layers, Hammer, Armchair, LampCeiling, Feather, Menu, X, ArrowRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { db, collection, addDoc, serverTimestamp } from './firebase';
 import { DesignCollections } from './components/DesignCollections';
 import { CollectionDetailPage } from './components/CollectionDetailPage';
 import { SpaceDetailPage } from './components/SpaceDetailPage';
+import { ShowcaseGalleryPage } from './components/ShowcaseGalleryPage';
 import { BudgetCalculator } from './components/BudgetCalculator';
 import { ScrollIntroHero } from './components/ScrollIntroHero';
+import { SHOWCASE_GALLERIES, ShowcaseCategorySlug, getShowcaseGalleryBySlug } from './data/showcaseGalleries';
 import ownerImage from '../Soham.png';
 import coFounderImage from '../Sattam.jpeg';
 import logoImage from '../logo.jpeg';
-import kitchhImage from '../kitchh.jpg';
-import barrImage from '../barr.jpg';
-import crockImage from '../crock.jpg';
-import dressImage from '../dress.jpg';
-import wallImage from '../wall.jpg';
-import wardImage from '../ward.jpg';
-import tvunitImage from '../tvunit.jpg';
 import p1Image from '../P1.png';
 import p2Image from '../P2.png';
 import p3Image from '../P3.png';
 import p4Image from '../P4.png';
 import p5Image from '../P5.png';
 import p6Image from '../P6.jpeg';
-
-const horizontalScrollItems = [
-  { title: "Kitchen", price: "1 L", img: kitchhImage },
-  { title: "Hydraulic Bed", price: "60k", img: "https://images.unsplash.com/photo-1505693314120-0d443867891c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-  { title: "Wardrobe", price: "50k", img: wardImage },
-  { title: "Dressing Table", price: "20k", img: dressImage },
-  { title: "Washroom", price: "1 L", img: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-  { title: "Living Decor", price: "2 L", img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-  { title: "TV Unit", price: "40k", img: tvunitImage },
-  { title: "Crockery Unit", price: "60k", img: crockImage },
-  { title: "Bar Cabinet", price: "50k", img: barrImage },
-  { title: "Wall Decor", price: "30k", img: wallImage },
-];
 
 
 
@@ -78,6 +60,14 @@ export default function App() {
     return { collection: null, space: null };
   };
 
+  const parseGalleryHash = (hash: string): ShowcaseCategorySlug | null => {
+    const match = hash.match(/^#gallery\/([a-z0-9-]+)$/);
+    if (match && getShowcaseGalleryBySlug(match[1])) {
+      return match[1] as ShowcaseCategorySlug;
+    }
+    return null;
+  };
+
   const [selectedCollection, setSelectedCollection] = useState<'smart' | 'signature' | 'bespoke' | null>(() => {
     if (typeof window !== 'undefined') {
       return parseCollectionHash(window.location.hash).collection;
@@ -92,16 +82,35 @@ export default function App() {
     return null;
   });
 
+  const [selectedGallerySlug, setSelectedGallerySlug] = useState<ShowcaseCategorySlug | null>(() => {
+    if (typeof window !== 'undefined') {
+      return parseGalleryHash(window.location.hash);
+    }
+    return null;
+  });
+
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      const parsed = parseCollectionHash(hash);
-      if (parsed.collection) {
-        setSelectedCollection(parsed.collection);
-        setSelectedSpaceSlug(parsed.space);
-      } else if (hash === '#design-collections' || !hash.startsWith('#collection-')) {
+      const parsedGallery = parseGalleryHash(hash);
+      if (parsedGallery) {
+        setSelectedGallerySlug(parsedGallery);
         setSelectedCollection(null);
         setSelectedSpaceSlug(null);
+        return;
+      }
+
+      const parsed = parseCollectionHash(hash);
+      if (parsed.collection) {
+        setSelectedGallerySlug(null);
+        setSelectedCollection(parsed.collection);
+        setSelectedSpaceSlug(parsed.space);
+      } else {
+        setSelectedGallerySlug(null);
+        if (hash === '#design-collections' || !hash.startsWith('#collection-')) {
+          setSelectedCollection(null);
+          setSelectedSpaceSlug(null);
+        }
       }
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -122,7 +131,42 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const handleSelectShowcaseGallery = (slug: ShowcaseCategorySlug) => {
+    setSelectedCollection(null);
+    setSelectedSpaceSlug(null);
+    setSelectedGallerySlug(slug);
+    window.location.hash = `gallery/${slug}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackFromGallery = () => {
+    setSelectedGallerySlug(null);
+    window.location.hash = 'space-showcase';
+    setTimeout(() => {
+      const target = document.getElementById('space-showcase');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 60);
+  };
+
+  const handleEnquireFromGallery = (spaceTitle: string) => {
+    setSelectedGallerySlug(null);
+    setFormData((prev) => ({
+      ...prev,
+      message: `Hello NRB DESIGN, I would like to enquire about a custom ${spaceTitle} design for my home.`,
+    }));
+    window.location.hash = 'consultation';
+    setTimeout(() => {
+      const target = document.getElementById('consultation');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   const handleSelectCollection = (id: 'smart' | 'signature' | 'bespoke') => {
+    setSelectedGallerySlug(null);
     setSelectedCollection(id);
     setSelectedSpaceSlug(null);
     window.location.hash = `collection-${id}`;
@@ -156,6 +200,7 @@ export default function App() {
   };
 
   const handleEnquireCollection = (collectionName: string) => {
+    setSelectedGallerySlug(null);
     setSelectedCollection(null);
     setSelectedSpaceSlug(null);
     setFormData(prev => ({
@@ -243,6 +288,19 @@ export default function App() {
     if (!href || !href.startsWith("#")) return;
     scrollToTargetId(href.substring(1));
   };
+
+  const activeGallery = getShowcaseGalleryBySlug(selectedGallerySlug);
+
+  if (activeGallery) {
+    return (
+      <ShowcaseGalleryPage
+        category={activeGallery}
+        onBackHome={handleBackFromGallery}
+        onSelectCategory={handleSelectShowcaseGallery}
+        onBookConsultation={handleEnquireFromGallery}
+      />
+    );
+  }
 
   if (selectedCollection && selectedSpaceSlug) {
     return (
@@ -396,43 +454,65 @@ export default function App() {
         </div>
       </section>
 
-      {/* 2.5 Horizontal Scroll Pricing Section */}
-      <section className="mb-16 md:mb-24 overflow-hidden relative w-full bg-[#e3ddd5] py-8 md:py-12 shadow-inner group">
+      {/* 2.5 Horizontal Scroll Spaces Showcase Section */}
+      <section id="space-showcase" className="mb-16 md:mb-24 overflow-hidden relative w-full bg-[#e3ddd5] py-8 md:py-12 shadow-inner group scroll-mt-24">
         <div className="flex w-max animate-scroll group-hover:pause">
           <div className="flex gap-4 md:gap-6 pr-4 md:pr-6">
-            {horizontalScrollItems.map((item, idx) => (
-              <div key={`first-${idx}`} className="relative w-[240px] h-[240px] md:w-[320px] md:h-[320px] shrink-0 rounded-2xl overflow-hidden group/card shadow-lg">
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" />
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10"></div>
-                {/* Title Badge */}
-                <div className="absolute top-4 right-4 bg-[#1a1a1a]/80 backdrop-blur-md px-4 py-1.5 rounded-lg border border-white/10 shadow-sm">
-                  <p className="text-white text-sm md:text-base font-medium tracking-wide">{item.title}</p>
+            {SHOWCASE_GALLERIES.map((item) => (
+              <button
+                key={`first-${item.slug}`}
+                type="button"
+                onClick={() => handleSelectShowcaseGallery(item.slug)}
+                className="relative w-[240px] h-[240px] md:w-[320px] md:h-[320px] shrink-0 rounded-2xl overflow-hidden group/card shadow-lg text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8c735d]"
+                aria-label={`Explore ${item.title} animated gallery`}
+              >
+                <img
+                  src={item.coverImage}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300" />
+                <div className="absolute bottom-5 left-5 right-5 md:bottom-6 md:left-6 md:right-6 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="font-['Playfair_Display',serif] text-white text-xl md:text-2xl font-medium tracking-wide drop-shadow-sm">
+                      {item.title}
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-[#ebd59d] mt-1 opacity-90 group-hover/card:translate-x-0.5 transition-transform">
+                      <span>Explore Gallery</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
                 </div>
-                {/* Price text */}
-                <div className="absolute bottom-5 left-5 md:bottom-7 md:left-7">
-                  <p className="text-white text-4xl md:text-5xl font-medium leading-tight tracking-tight">{item.price}</p>
-                  <p className="text-white text-xl md:text-2xl font-light mt-1">Onwards</p>
-                </div>
-              </div>
+              </button>
             ))}
           </div>
-          <div className="flex gap-4 md:gap-6 pr-4 md:pr-6">
-            {horizontalScrollItems.map((item, idx) => (
-              <div key={`second-${idx}`} className="relative w-[240px] h-[240px] md:w-[320px] md:h-[320px] shrink-0 rounded-2xl overflow-hidden group/card shadow-lg">
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" />
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10"></div>
-                {/* Title Badge */}
-                <div className="absolute top-4 right-4 bg-[#1a1a1a]/80 backdrop-blur-md px-4 py-1.5 rounded-lg border border-white/10 shadow-sm">
-                  <p className="text-white text-sm md:text-base font-medium tracking-wide">{item.title}</p>
+          <div className="flex gap-4 md:gap-6 pr-4 md:pr-6" aria-hidden="true">
+            {SHOWCASE_GALLERIES.map((item) => (
+              <button
+                key={`second-${item.slug}`}
+                type="button"
+                tabIndex={-1}
+                onClick={() => handleSelectShowcaseGallery(item.slug)}
+                className="relative w-[240px] h-[240px] md:w-[320px] md:h-[320px] shrink-0 rounded-2xl overflow-hidden group/card shadow-lg text-left cursor-pointer"
+              >
+                <img
+                  src={item.coverImage}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300" />
+                <div className="absolute bottom-5 left-5 right-5 md:bottom-6 md:left-6 md:right-6 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="font-['Playfair_Display',serif] text-white text-xl md:text-2xl font-medium tracking-wide drop-shadow-sm">
+                      {item.title}
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-[#ebd59d] mt-1 opacity-90 group-hover/card:translate-x-0.5 transition-transform">
+                      <span>Explore Gallery</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
                 </div>
-                {/* Price text */}
-                <div className="absolute bottom-5 left-5 md:bottom-7 md:left-7">
-                  <p className="text-white text-4xl md:text-5xl font-medium leading-tight tracking-tight">{item.price}</p>
-                  <p className="text-white text-xl md:text-2xl font-light mt-1">Onwards</p>
-                </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
