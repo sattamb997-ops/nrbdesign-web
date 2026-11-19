@@ -2,6 +2,7 @@ import heroImg from '../assets/images/budget_planner_hero_1794732665670.jpg';
 import apartmentImg from '../assets/images/property_apartment_1794732666449.jpg';
 import duplexImg from '../assets/images/property_duplex_1794732666909.jpg';
 import villaImg from '../assets/images/property_villa_1794732667225.jpg';
+import penthouseImg from '../assets/images/property_penthouse_1795075583390.jpg';
 
 export type PropertyType = 'apartment' | 'duplex' | 'villa' | 'other';
 export type BhkOption = '1bhk' | '2bhk' | '3bhk' | '4bhk' | '5bhk+';
@@ -186,6 +187,7 @@ export const PROPERTY_TYPE_OPTIONS: {
     id: 'other',
     label: 'Other / Penthouse',
     subtitle: 'Custom layouts & studio residences',
+    image: penthouseImg,
   },
 ];
 

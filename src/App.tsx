@@ -3,16 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Hexagon, MessageCircle, MapPin, Phone, CheckCircle2, Star, Instagram, BrickWall, Layers, Hammer, Armchair, LampCeiling, Feather, Menu, X, ArrowRight } from 'lucide-react';
+import { Hexagon, MessageCircle, MapPin, Phone, CheckCircle2, Star, Instagram, BrickWall, Layers, Hammer, Armchair, LampCeiling, Feather, Menu, X } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { db, collection, addDoc, serverTimestamp } from './firebase';
 import { DesignCollections } from './components/DesignCollections';
 import { CollectionDetailPage } from './components/CollectionDetailPage';
 import { SpaceDetailPage } from './components/SpaceDetailPage';
 import { ShowcaseGalleryPage } from './components/ShowcaseGalleryPage';
+import { SpaceShowcaseCarousel } from './components/SpaceShowcaseCarousel';
 import { BudgetCalculator } from './components/BudgetCalculator';
 import { ScrollIntroHero } from './components/ScrollIntroHero';
-import { SHOWCASE_GALLERIES, ShowcaseCategorySlug, getShowcaseGalleryBySlug } from './data/showcaseGalleries';
+import { ShowcaseCategorySlug, getShowcaseGalleryBySlug } from './data/showcaseGalleries';
 import ownerImage from '../Soham.png';
 import coFounderImage from '../Sattam.jpeg';
 import logoImage from '../logo.jpeg';
@@ -454,69 +455,8 @@ export default function App() {
         </div>
       </section>
 
-      {/* 2.5 Horizontal Scroll Spaces Showcase Section */}
-      <section id="space-showcase" className="mb-16 md:mb-24 overflow-hidden relative w-full bg-[#e3ddd5] py-8 md:py-12 shadow-inner group scroll-mt-24">
-        <div className="flex w-max animate-scroll group-hover:pause">
-          <div className="flex gap-4 md:gap-6 pr-4 md:pr-6">
-            {SHOWCASE_GALLERIES.map((item) => (
-              <button
-                key={`first-${item.slug}`}
-                type="button"
-                onClick={() => handleSelectShowcaseGallery(item.slug)}
-                className="relative w-[240px] h-[240px] md:w-[320px] md:h-[320px] shrink-0 rounded-2xl overflow-hidden group/card shadow-lg text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8c735d]"
-                aria-label={`Explore ${item.title} animated gallery`}
-              >
-                <img
-                  src={item.coverImage}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300" />
-                <div className="absolute bottom-5 left-5 right-5 md:bottom-6 md:left-6 md:right-6 flex items-end justify-between gap-3">
-                  <div>
-                    <p className="font-['Playfair_Display',serif] text-white text-xl md:text-2xl font-medium tracking-wide drop-shadow-sm">
-                      {item.title}
-                    </p>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-[#ebd59d] mt-1 opacity-90 group-hover/card:translate-x-0.5 transition-transform">
-                      <span>Explore Gallery</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-4 md:gap-6 pr-4 md:pr-6" aria-hidden="true">
-            {SHOWCASE_GALLERIES.map((item) => (
-              <button
-                key={`second-${item.slug}`}
-                type="button"
-                tabIndex={-1}
-                onClick={() => handleSelectShowcaseGallery(item.slug)}
-                className="relative w-[240px] h-[240px] md:w-[320px] md:h-[320px] shrink-0 rounded-2xl overflow-hidden group/card shadow-lg text-left cursor-pointer"
-              >
-                <img
-                  src={item.coverImage}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300" />
-                <div className="absolute bottom-5 left-5 right-5 md:bottom-6 md:left-6 md:right-6 flex items-end justify-between gap-3">
-                  <div>
-                    <p className="font-['Playfair_Display',serif] text-white text-xl md:text-2xl font-medium tracking-wide drop-shadow-sm">
-                      {item.title}
-                    </p>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-[#ebd59d] mt-1 opacity-90 group-hover/card:translate-x-0.5 transition-transform">
-                      <span>Explore Gallery</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 2.5 3D Curved Radial Spotlight Spaces Showcase */}
+      <SpaceShowcaseCarousel onSelectCategory={handleSelectShowcaseGallery} />
 
       {/* Refined Living & Thoughtful Design Section */}
       <section className="py-20 md:py-28 px-6 md:px-12 bg-[#fbf9f6] border-y border-[#eae6df]">
