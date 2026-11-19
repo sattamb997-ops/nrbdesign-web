@@ -1,9 +1,136 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isValidConsultation(data) {
+      return data.keys().hasAll(['name', 'email', 'phone', 'message', 'createdAt'])
+        && data.keys().hasOnly(['name', 'email', 'phone', 'message', 'createdAt'])
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.email is string && data.email.size() >= 1 && data.email.size() <= 160
+        && data.phone is string && data.phone.size() >= 6 && data.phone.size() <= 30
+        && data.message is string && data.message.size() >= 1 && data.message.size() <= 5000
+        && data.createdAt == request.time;
+    }
+
+    function isValidHomeProfile(hp) {
+      return hp is map
+        && hp.keys().hasAll(['propertyType', 'bhk', 'carpetArea', 'location', 'customLocation', 'propertyStatus', 'projectType'])
+        && hp.keys().hasOnly(['propertyType', 'bhk', 'carpetArea', 'location', 'customLocation', 'propertyStatus', 'projectType'])
+        && hp.propertyType is string && hp.propertyType.size() >= 1 && hp.propertyType.size() <= 40
+        && hp.bhk is string && hp.bhk.size() >= 1 && hp.bhk.size() <= 20
+        && hp.carpetArea is int && hp.carpetArea >= 100 && hp.carpetArea <= 20000
+        && hp.location is string && hp.location.size() >= 1 && hp.location.size() <= 80
+        && hp.customLocation is string && hp.customLocation.size() <= 120
+        && hp.propertyStatus is string && hp.propertyStatus.size() >= 1 && hp.propertyStatus.size() <= 40
+        && hp.projectType is string && hp.projectType.size() >= 1 && hp.projectType.size() <= 40;
+    }
+
+    function isValidRooms(rooms) {
+      return rooms is map
+        && rooms.keys().hasAll(['kitchen', 'rooms', 'paint', 'falseCeiling', 'electrical', 'washroom', 'living'])
+        && rooms.keys().hasOnly(['kitchen', 'rooms', 'paint', 'falseCeiling', 'electrical', 'washroom', 'living'])
+        && rooms.kitchen is map
+        && rooms.rooms is map
+        && rooms.paint is map
+        && rooms.falseCeiling is map
+        && rooms.electrical is map
+        && rooms.washroom is map
+        && rooms.living is map;
+    }
+
+    function isValidAdditionalServices(svc) {
+      return svc is map
+        && svc.keys().hasAll(['flooring', 'plumbing', 'civil', 'custom-furniture'])
+        && svc.keys().hasOnly(['flooring', 'plumbing', 'civil', 'custom-furniture'])
+        && svc.flooring is bool
+        && svc.plumbing is bool
+        && svc.civil is bool
+        && svc['custom-furniture'] is bool;
+    }
+
+    function isValidEstimate(est) {
+      return est is map
+        && est.keys().hasAll(['minTotal', 'maxTotal', 'timeline', 'scopeSummary', 'breakdown', 'summaryText'])
+        && est.keys().hasOnly(['minTotal', 'maxTotal', 'timeline', 'scopeSummary', 'breakdown', 'summaryText'])
+        && est.minTotal is number && est.minTotal >= 0
+        && est.maxTotal is number && est.maxTotal >= est.minTotal
+        && est.timeline is string && est.timeline.size() >= 1 && est.timeline.size() <= 120
+        && est.scopeSummary is list && est.scopeSummary.size() <= 30
+        && est.breakdown is list && est.breakdown.size() <= 30
+        && est.summaryText is string && est.summaryText.size() >= 1 && est.summaryText.size() <= 6000;
+    }
+
+    function isValidBudgetCalculation(data) {
+      return data.keys().hasAll([
+          'sessionId',
+          'stage',
+          'name',
+          'phone',
+          'email',
+          'notes',
+          'homeProfile',
+          'rooms',
+          'additionalServices',
+          'plumbingWashrooms',
+          'needDesignGuidance',
+          'estimate',
+          'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'sessionId',
+          'stage',
+          'name',
+          'phone',
+          'email',
+          'notes',
+          'homeProfile',
+          'rooms',
+          'additionalServices',
+          'plumbingWashrooms',
+          'needDesignGuidance',
+          'estimate',
+          'createdAt'
+        ])
+        && data.sessionId is string && data.sessionId.size() >= 4 && data.sessionId.size() <= 80
+        && data.stage is string && data.stage.size() >= 1 && data.stage.size() <= 50
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.phone is string && data.phone.size() >= 7 && data.phone.size() <= 30
+        && data.email is string && data.email.size() <= 160
+        && data.notes is string && data.notes.size() <= 1000
+        && isValidHomeProfile(data.homeProfile)
+        && isValidRooms(data.rooms)
+        && isValidAdditionalServices(data.additionalServices)
+        && data.plumbingWashrooms is int && data.plumbingWashrooms >= 1 && data.plumbingWashrooms <= 20
+        && data.needDesignGuidance is bool
+        && isValidEstimate(data.estimate)
+        && data.createdAt == request.time;
+    }
+
+    // ===============================================================
+    // Default Deny
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Collections (Public Create-Only for Client PII Protection)
+    // ===============================================================
     match /consultations/{document} {
-      allow create: if true;
+      allow create: if isValidConsultation(request.resource.data);
       allow read, update, delete: if false;
+    }
+
+    match /budget_calculations/{document} {
+      allow create: if isValidBudgetCalculation(request.resource.data);
+      allow read, update, delete: if false;
+    }
+
+    match /test/connection {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }

@@ -1,22 +1,122 @@
 {
-  "project_id": "youthful-abbey-4hnbb",
-  "collections": [
-    {
-      "name": "consultations",
-      "description": "User consultation requests.",
-      "security_rules": {
-        "read": "false",
-        "create": "true",
-        "update": "false",
-        "delete": "false"
+  "entities": {
+    "Consultation": {
+      "title": "Consultation",
+      "description": "Client consultation requests and detailed budget quotation enquiries.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the client."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the client (or 'Not provided')."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone or WhatsApp number."
+        },
+        "message": {
+          "type": "string",
+          "description": "Project enquiry message or attached estimate summary."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the request was submitted."
+        }
       },
-      "schema": {
-        "name": "string",
-        "email": "string",
-        "phone": "string",
-        "message": "string",
-        "createdAt": "timestamp"
-      }
+      "required": ["name", "email", "phone", "message", "createdAt"]
+    },
+    "BudgetCalculation": {
+      "title": "BudgetCalculation",
+      "description": "Complete NRB Home Budget Planner submission with mandatory client contact details, all room/service selections, and computed budget estimate.",
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "description": "Client session identifier grouping progressive snapshots of the same planner session."
+        },
+        "stage": {
+          "type": "string",
+          "description": "Planner stage when this snapshot was saved (e.g., step1-completed, step2-spaces, step3-services, estimate-viewed, pdf-downloaded, whatsapp-clicked, consultation-clicked, quote-submitted)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Mandatory full name of the visitor using the budget calculator."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Mandatory phone or WhatsApp number of the visitor."
+        },
+        "email": {
+          "type": "string",
+          "description": "Optional email address."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional project notes or possession timeline."
+        },
+        "homeProfile": {
+          "type": "object",
+          "description": "Step 1 home configuration (propertyType, bhk, carpetArea, location, customLocation, propertyStatus, projectType)."
+        },
+        "rooms": {
+          "type": "object",
+          "description": "Step 2 space selections (kitchen, rooms, paint, falseCeiling, electrical, washroom, living)."
+        },
+        "additionalServices": {
+          "type": "object",
+          "description": "Step 3 additional services toggles (flooring, plumbing, civil, custom-furniture)."
+        },
+        "plumbingWashrooms": {
+          "type": "integer",
+          "description": "Number of washrooms configured for plumbing work."
+        },
+        "needDesignGuidance": {
+          "type": "boolean",
+          "description": "Whether the user requested NRB DESIGN coordinator guidance."
+        },
+        "estimate": {
+          "type": "object",
+          "description": "Computed estimate totals, timeline, scopeSummary, breakdown, and summaryText."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the planner snapshot was recorded."
+        }
+      },
+      "required": [
+        "sessionId",
+        "stage",
+        "name",
+        "phone",
+        "email",
+        "notes",
+        "homeProfile",
+        "rooms",
+        "additionalServices",
+        "plumbingWashrooms",
+        "needDesignGuidance",
+        "estimate",
+        "createdAt"
+      ]
     }
-  ]
+  },
+  "firestore": {
+    "/consultations/{consultationId}": {
+      "schema": {
+        "$ref": "#/entities/Consultation"
+      },
+      "description": "Public write-only consultation and quotation submissions."
+    },
+    "/budget_calculations/{calculationId}": {
+      "schema": {
+        "$ref": "#/entities/BudgetCalculation"
+      },
+      "description": "Public write-only NRB Home Budget Planner records storing user contact details, every selected option, and calculated estimates."
+    }
+  }
 }

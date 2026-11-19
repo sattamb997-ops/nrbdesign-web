@@ -21,7 +21,11 @@ function formatPdfLakhs(amount: number): string {
   return formatPdfINR(amount);
 }
 
-export function generateBudgetPdf(state: PlannerState, estimate: EstimateOutput): void {
+export function generateBudgetPdf(
+  state: PlannerState,
+  estimate: EstimateOutput,
+  clientInfo?: { name?: string; phone?: string; email?: string }
+): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -81,10 +85,13 @@ export function generateBudgetPdf(state: PlannerState, estimate: EstimateOutput)
   const projectLabel =
     PROJECT_TYPE_OPTIONS.find((p) => p.id === state.projectType)?.label ?? '';
 
+  const hasClient = Boolean(clientInfo?.name?.trim() || clientInfo?.phone?.trim());
+  const cardHeight = hasClient ? 35 : 30;
+
   doc.setFillColor(...ivory);
-  doc.roundedRect(margin, y, contentWidth, 30, 2, 2, 'F');
+  doc.roundedRect(margin, y, contentWidth, cardHeight, 2, 2, 'F');
   doc.setDrawColor(...lineColor);
-  doc.roundedRect(margin, y, contentWidth, 30, 2, 2, 'S');
+  doc.roundedRect(margin, y, contentWidth, cardHeight, 2, 2, 'S');
 
   doc.setTextColor(...mutedText);
   doc.setFontSize(7.5);
@@ -107,8 +114,12 @@ export function generateBudgetPdf(state: PlannerState, estimate: EstimateOutput)
   if (state.needDesignGuidance) {
     doc.text('Requested NRB DESIGN expert guidance on scope', margin + contentWidth / 2 + 4, y + 25);
   }
+  if (hasClient) {
+    const clientLine = [clientInfo?.name?.trim(), clientInfo?.phone?.trim()].filter(Boolean).join(' · ');
+    doc.text(`Prepared for: ${clientLine}`, margin + 5, y + 30.5);
+  }
 
-  y += 38;
+  y += cardHeight + 8;
 
   // Indicative Total Highlight Box
   doc.setFillColor(...charcoal);

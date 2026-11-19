@@ -1,16 +1,56 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  getDocFromServer,
+  serverTimestamp,
+} from 'firebase/firestore';
+import firebaseConfig from '../firebase-applet-config.json';
 
-const firebaseConfig = {
-  projectId: "youthful-abbey-4hnbb",
-  appId: "1:639847838438:web:584e36ddd9d22b8b61c127",
-  apiKey: "AIzaSyCXpWfVVlwHHiRdSxSs_1MaZ2JDjgrTJHg",
-  authDomain: "youthful-abbey-4hnbb.firebaseapp.com",
-  storageBucket: "youthful-abbey-4hnbb.firebasestorage.app",
-  messagingSenderId: "639847838438",
-};
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+}
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, "ai-studio-serenespacesstud-1963c482-3630-4029-b66f-fceae810c427");
+const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+export function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null
+): never {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    operationType,
+    path,
+  };
+  console.error('Firestore Error:', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
+async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error('Please check your Firebase configuration.');
+    }
+  }
+}
+
+void testConnection();
 
 export { db, collection, addDoc, serverTimestamp };

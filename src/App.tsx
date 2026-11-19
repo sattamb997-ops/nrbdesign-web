@@ -219,23 +219,29 @@ export default function App() {
 
   const handleConsultationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
+    const trimmed = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      message: formData.message.trim(),
+    };
+    if (!trimmed.name || !trimmed.email || !trimmed.phone || !trimmed.message) {
       setSubmitError('Please fill out all fields.');
       return;
     }
-    
+
     setIsSubmitting(true);
     setSubmitError('');
-    
+
     try {
       await addDoc(collection(db, 'consultations'), {
-        ...formData,
-        createdAt: serverTimestamp()
+        ...trimmed,
+        createdAt: serverTimestamp(),
       });
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (err) {
-      console.error("Error adding document: ", err);
+      console.error('Error adding document: ', err);
       setSubmitError('An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -545,11 +551,14 @@ export default function App() {
 
       {/* 4.2 Interactive Budget Calculator Section */}
       <BudgetCalculator
-        onBookWithEstimate={(summaryText) => {
+        onBookWithEstimate={(summaryText, contact) => {
           setSubmitSuccess(false);
           setSubmitError('');
           setFormData((prev) => ({
             ...prev,
+            name: contact?.name?.trim() || prev.name,
+            phone: contact?.phone?.trim() || prev.phone,
+            email: contact?.email?.trim() || prev.email,
             message: summaryText,
           }));
           const target = document.getElementById('consultation');
