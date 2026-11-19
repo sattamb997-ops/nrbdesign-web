@@ -350,8 +350,8 @@ export default function App() {
             onClick={handleSmoothScroll}
             className="flex items-center gap-3 shrink-0 group"
           >
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white p-1 overflow-hidden shadow-md border border-white/20">
-              <img src={logoImage} alt="NRB DESIGN Logo" className="w-full h-full object-contain scale-110" />
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white p-0.5 overflow-hidden shadow-md border border-white/20 shrink-0">
+              <img src={logoImage} alt="NRB DESIGN Logo" className="w-full h-full object-contain scale-[1.16]" />
             </div>
             <span className="font-['Playfair_Display',serif] text-base md:text-lg tracking-[0.18em] text-[#ebd59d] font-medium whitespace-nowrap">
               NRB DESIGN
