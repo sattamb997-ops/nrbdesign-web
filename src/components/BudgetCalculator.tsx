@@ -135,14 +135,14 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
       if (trimmedName.length < 2) {
         return {
           valid: false,
-          error: 'Please enter your full name (at least 2 characters) to use the budget calculator.',
+          error: 'Please enter your full name (at least 2 characters) to view your estimated budget.',
           focusField: 'name',
         };
       }
       if (digitsOnly.length < 10 || digitsOnly.length > 15) {
         return {
           valid: false,
-          error: 'Please enter a valid 10-digit mobile / WhatsApp number to use the budget calculator.',
+          error: 'Please enter a valid 10-digit mobile / WhatsApp number to view your estimated budget.',
           focusField: 'phone',
         };
       }
@@ -239,7 +239,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
   };
 
   const focusContactSection = (focusField: 'name' | 'phone' | null = 'name') => {
-    setStep(1);
+    setStep(3);
     setTimeout(() => {
       contactSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       if (focusField === 'phone') {
@@ -253,7 +253,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
   const goToStep = (nextStep: number) => {
     const clamped = Math.max(1, Math.min(4, nextStep));
 
-    if (clamped > 1) {
+    if (clamped === 4) {
       const check = validateContact();
       if (!check.valid) {
         setContactError(check.error);
@@ -262,15 +262,9 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
       }
       setContactError('');
       hasInteractedRef.current = true;
-      if (step === 1) {
-        void savePlannerSnapshot('step1-completed', true);
-      } else if (clamped === 4) {
-        void savePlannerSnapshot('estimate-viewed', true);
-      } else {
-        void savePlannerSnapshot(`step${clamped}-entered`, false);
-      }
-    } else if (step > 1 && validateContact().valid) {
-      void savePlannerSnapshot(`step${step}-updated`, false);
+      void savePlannerSnapshot('estimate-viewed', true);
+    } else if (validateContact().valid) {
+      void savePlannerSnapshot(`step${clamped}-entered`, false);
     }
 
     setStep(clamped);
@@ -475,7 +469,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
               </div>
 
               <div className="flex flex-wrap items-center justify-between lg:justify-end gap-3">
-                {step > 1 && clientName.trim() && (
+                {validateContact().valid && (
                   <button
                     type="button"
                     onClick={() => focusContactSection('name')}
@@ -538,103 +532,11 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
               <div className="space-y-10">
                 <div>
                   <h3 className="font-['Playfair_Display',serif] text-2xl sm:text-3xl text-[#1a1a1a] mb-2">
-                    Let&apos;s start with your details &amp; home.
+                    Let&apos;s start with your home.
                   </h3>
                   <p className="text-sm text-stone-600">
-                    Enter your name and phone number first, then share your property profile so we can prepare and save your customised budget estimate.
+                    Share your property profile so we can calibrate layout allowances, hardware counts, and execution requirements.
                   </p>
-                </div>
-
-                {/* Mandatory Client Contact Details Gate */}
-                <div
-                  ref={contactSectionRef}
-                  className={`p-5 sm:p-6 rounded-xl border transition-colors space-y-4 ${
-                    contactError
-                      ? 'bg-red-50/60 border-red-300'
-                      : 'bg-[#fbf9f6] border-[#d9cec0]'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] font-bold text-[#3a3532]">
-                        Your Contact Details (Required)
-                      </p>
-                      <p className="text-xs text-stone-500 mt-0.5">
-                        Required before selecting spaces and generating your personalised budget estimate.
-                      </p>
-                    </div>
-                    {validateContact().valid && (
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#242321] bg-[#f3eee8] border border-[#d9cec0] px-3 py-1 rounded-md self-start sm:self-auto">
-                        <Check className="w-3.5 h-3.5 text-[#8c735d]" />
-                        <span>Details Ready</span>
-                      </span>
-                    )}
-                  </div>
-
-                  {contactError && (
-                    <p className="text-xs font-semibold text-red-700 bg-red-100/80 border border-red-200 px-3.5 py-2.5 rounded-lg">
-                      {contactError}
-                    </p>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#3a3532] mb-1.5">
-                        <User className="w-3.5 h-3.5 text-[#8c735d]" />
-                        <span>Full Name *</span>
-                      </label>
-                      <input
-                        ref={nameInputRef}
-                        type="text"
-                        required
-                        value={clientName}
-                        onChange={(e) => {
-                          hasInteractedRef.current = true;
-                          setClientName(e.target.value);
-                          if (contactError) setContactError('');
-                        }}
-                        placeholder="e.g. Anirban Sen"
-                        className="w-full border border-[#d9cec0] rounded-lg px-3.5 py-2.5 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:border-[#242321]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#3a3532] mb-1.5">
-                        <Phone className="w-3.5 h-3.5 text-[#8c735d]" />
-                        <span>Phone / WhatsApp Number *</span>
-                      </label>
-                      <input
-                        ref={phoneInputRef}
-                        type="tel"
-                        required
-                        value={clientPhone}
-                        onChange={(e) => {
-                          hasInteractedRef.current = true;
-                          setClientPhone(e.target.value);
-                          if (contactError) setContactError('');
-                        }}
-                        placeholder="+91 98XXX XXXXX"
-                        className="w-full border border-[#d9cec0] rounded-lg px-3.5 py-2.5 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:border-[#242321]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">
-                        <Mail className="w-3.5 h-3.5 text-[#8c735d]" />
-                        <span>Email (Optional)</span>
-                      </label>
-                      <input
-                        type="email"
-                        value={clientEmail}
-                        onChange={(e) => {
-                          hasInteractedRef.current = true;
-                          setClientEmail(e.target.value);
-                        }}
-                        placeholder="you@example.com"
-                        className="w-full border border-[#d9cec0] rounded-lg px-3.5 py-2.5 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:border-[#242321]"
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 {/* 1A. Property Type Cards */}
@@ -2061,6 +1963,98 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
                     {state.needDesignGuidance ? 'Guidance Requested' : 'Request Guidance'}
                   </span>
                 </button>
+
+                {/* Mandatory Contact Details Gate right before Viewing Approx Budget */}
+                <div
+                  ref={contactSectionRef}
+                  className={`p-5 sm:p-6 rounded-xl border transition-colors space-y-4 ${
+                    contactError
+                      ? 'bg-red-50/60 border-red-300'
+                      : 'bg-[#fbf9f6] border-[#d9cec0]'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.18em] font-bold text-[#3a3532]">
+                        Enter Your Details to View Your Approx Budget *
+                      </p>
+                      <p className="text-xs text-stone-500 mt-0.5">
+                        Add your name and phone number below to unlock and save your personalised interior budget estimate.
+                      </p>
+                    </div>
+                    {validateContact().valid && (
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#242321] bg-[#f3eee8] border border-[#d9cec0] px-3 py-1 rounded-md self-start sm:self-auto">
+                        <Check className="w-3.5 h-3.5 text-[#8c735d]" />
+                        <span>Ready to View Budget</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {contactError && (
+                    <p className="text-xs font-semibold text-red-700 bg-red-100/80 border border-red-200 px-3.5 py-2.5 rounded-lg">
+                      {contactError}
+                    </p>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#3a3532] mb-1.5">
+                        <User className="w-3.5 h-3.5 text-[#8c735d]" />
+                        <span>Full Name *</span>
+                      </label>
+                      <input
+                        ref={nameInputRef}
+                        type="text"
+                        required
+                        value={clientName}
+                        onChange={(e) => {
+                          hasInteractedRef.current = true;
+                          setClientName(e.target.value);
+                          if (contactError) setContactError('');
+                        }}
+                        placeholder="e.g. Anirban Sen"
+                        className="w-full border border-[#d9cec0] rounded-lg px-3.5 py-2.5 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:border-[#242321]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#3a3532] mb-1.5">
+                        <Phone className="w-3.5 h-3.5 text-[#8c735d]" />
+                        <span>Phone / WhatsApp Number *</span>
+                      </label>
+                      <input
+                        ref={phoneInputRef}
+                        type="tel"
+                        required
+                        value={clientPhone}
+                        onChange={(e) => {
+                          hasInteractedRef.current = true;
+                          setClientPhone(e.target.value);
+                          if (contactError) setContactError('');
+                        }}
+                        placeholder="+91 98XXX XXXXX"
+                        className="w-full border border-[#d9cec0] rounded-lg px-3.5 py-2.5 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:border-[#242321]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-1.5">
+                        <Mail className="w-3.5 h-3.5 text-[#8c735d]" />
+                        <span>Email (Optional)</span>
+                      </label>
+                      <input
+                        type="email"
+                        value={clientEmail}
+                        onChange={(e) => {
+                          hasInteractedRef.current = true;
+                          setClientEmail(e.target.value);
+                        }}
+                        placeholder="you@example.com"
+                        className="w-full border border-[#d9cec0] rounded-lg px-3.5 py-2.5 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:border-[#242321]"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -2069,7 +2063,23 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ onBookWithEs
             {/* ============================================================== */}
             {step === 4 && (
               <div className="space-y-10">
-                {estimate.breakdown.length === 0 ? (
+                {!validateContact().valid ? (
+                  <div className="p-8 rounded-xl bg-[#fbf9f6] border border-[#d9cec0] text-center space-y-4">
+                    <p className="font-['Playfair_Display',serif] text-2xl text-[#1a1a1a]">
+                      Enter your details to view your approx budget
+                    </p>
+                    <p className="text-sm text-stone-600 max-w-md mx-auto">
+                      Please provide your full name and phone number first so we can unlock and save your personalised budget estimate.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => focusContactSection('name')}
+                      className="inline-flex items-center gap-2 bg-[#242321] text-white px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      Enter Contact Details
+                    </button>
+                  </div>
+                ) : estimate.breakdown.length === 0 ? (
                   <div className="p-8 rounded-xl bg-[#fbf9f6] border border-[#eae6df] text-center space-y-4">
                     <p className="font-['Playfair_Display',serif] text-2xl text-[#1a1a1a]">
                       No spaces or services selected yet
